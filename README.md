@@ -65,7 +65,7 @@ Liste des bibliothèques Python requises par `migrate.py`.
 Les principales sont :
 - `pandas` — pour la lecture et la manipulation du CSV.
 - `pymongo` — pour l’interaction avec MongoDB.
-
+- `kagglehub` - pour le téléchargement du CSV
 ---
 
 ### 📁 `data/`
