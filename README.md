@@ -80,9 +80,9 @@ Il est utilisé comme **volume Docker** pour être accessible depuis le conteneu
 ### 1. Lancer les services avec Docker
 
 Dans un terminal, à la racine du projet :
-
+```bash
 docker compose up --build
-
+```
 Cette commande va :
 
 Télécharger le csv
@@ -110,6 +110,6 @@ docker exec -it mongodb mongosh -u admin -p password
 Puis, dans le shell Mongo :
 
 ```js
-use healthcare
+use healthcare_db
 db.patients.find().limit(5).pretty()
 ```
