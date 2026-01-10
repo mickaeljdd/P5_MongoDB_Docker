@@ -14,7 +14,7 @@ Ce dépôt contient l’ensemble des outils nécessaires pour :
 ---
 
 ## Contenu du dépôt
-
+```
 P5_MongoDB_Docker/
 ├── docker-compose.yaml # Définition des services Docker
 ├── dockerfile # Construction de l’image du migrateur Python
@@ -23,7 +23,7 @@ P5_MongoDB_Docker/
 ├── README.md # Ce fichier de documentation
 └── data/ # Dossier local pour stocker le CSV
 └── healthcare-dataset.csv
-
+```
 ## Description des composants
 
 ### 🐳 `docker-compose.yaml`
