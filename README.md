@@ -142,7 +142,4 @@ classDiagram
         amount : number
     }
 
-    Patient --> Medical
-    Patient --> Hospitalization
-    Patient --> Billing
 ```
