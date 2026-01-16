@@ -4,22 +4,23 @@ services:
     container_name: mongodb
     restart: always
     ports:
-      - "27017:27017"
+      - "${DB_PORT}:${DB_PORT}"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
     volumes:
       - mongo_data:/data/db
-
+    
   migrator:
     build: .
     container_name: mongo_migrator
     depends_on:
       - mongo
     environment:
-      - MONGO_URI=mongodb://admin:password@mongo:27017/
+      - MONGO_URI=mongodb://${DB_USER}:${DB_PASSWORD}@mongo:${DB_PORT}/
     volumes:
       - ./data:/app/data
-
+    env_file:
+      - ./.env
 volumes:
   mongo_data:

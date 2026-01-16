@@ -1,57 +1,114 @@
 import os
+from dotenv import load_dotenv
 import pandas as pd
-from pymongo import MongoClient
+from pymongo import MongoClient, errors
 import time
 import shutil
 import kagglehub
+from datetime import datetime
+from pymongo.errors import BulkWriteError
 
-# Télécharger le dataset
-print("Téléchargement du dataset depuis Kaggle...")
-path = kagglehub.dataset_download("prasad22/healthcare-dataset")
-print("Dataset téléchargé dans :", path)
+DATA_DIR = "./data"
+CSV_FILE = "healthcare_dataset.csv"
+CSV_PATH = os.path.join(DATA_DIR, CSV_FILE)
 
-DEST_DIR = "./data"
-os.makedirs(DEST_DIR, exist_ok=True)
+load_dotenv()
 
-file = 'healthcare_dataset.csv'
-src = os.path.join(path, file)
-print(src)
-dst = os.path.join(DEST_DIR, file)
-shutil.copy(src, dst)
-print(f"CSV copié vers {dst}")
+def chunked(iterable, size):
+    for i in range(0, len(iterable), size):
+        yield iterable[i:i + size]
 
+def recup_fichier():
+    os.makedirs(DATA_DIR, exist_ok=True)
 
-# Attendre un peu pour laisser Mongo démarrer
-time.sleep(5)
+    if os.path.exists(CSV_PATH):
+        print("Le fichier CSV existe déjà, téléchargement ignoré.")
+        return
 
-# Connexion à MongoDB depuis localhost
-client = MongoClient("mongodb://admin:password@localhost:27017/")
+    print("Téléchargement du dataset depuis Kaggle...")
+    path = kagglehub.dataset_download("prasad22/healthcare-dataset")
 
+    src = os.path.join(path, CSV_FILE)
+    if not os.path.exists(src):
+        raise FileNotFoundError(f"Fichier introuvable : {src}")
 
-# Lire la variable d'environnement
-mongo_uri = os.getenv("MONGO_URI", "mongodb://admin:password@mongo:27017/") 
-
-client = MongoClient(mongo_uri)
-
+    shutil.copy(src, CSV_PATH)
+    print(f"CSV copié vers {CSV_PATH}")
 
 
-db = client["healthcare_db"]
-collection = db["patients"]
-print("Connexion à MongoDB réussie")
+def connectandmigrate():
+    time.sleep(5)
 
-if collection.count_documents({}) > 0:
-    collection.delete_many({})
-    print("Collection vidée")
+    mongo_uri = os.getenv(
+        "MONGO_URI",
+        f"mongodb://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@localhost:{os.getenv('DB_PORT')}/"
+    )
 
-# Charger le CSV si localhost
-#df = pd.read_csv("./data/healthcare_dataset.csv")
-#print(f"{len(df)} lignes chargées depuis le CSV.")
+    client = MongoClient(mongo_uri)
+    db = client["healthcare_db"]
+    collection = db["hospital_stays"]
 
-# Charger le CSV si docker
-df = pd.read_csv("/app/data/healthcare_dataset.csv")
-print(f"{len(df)} lignes chargées depuis le CSV.")
+    print("Connexion à MongoDB réussie")
 
-# Convertir en dictionnaires et insérer dans MongoDB
-data = df.to_dict(orient="records")
-collection.insert_many(data,)
-print(f"{len(data)} documents insérés dans MongoDB")
+    # Index unique (idempotent)
+    collection.create_index(
+        [
+            ("patient.name", 1),
+            ("hospitalization.admission_date", 1)
+        ],
+        unique=True
+    )
+
+    if not os.path.exists(CSV_PATH):
+        raise FileNotFoundError("Le fichier CSV est introuvable.")
+
+    df = pd.read_csv(CSV_PATH)
+    print(f"{len(df)} lignes chargées depuis le CSV.")
+
+    documents = []
+
+    for _, row in df.iterrows():
+        doc = {
+            "patient": {
+                "name": row["Name"],
+                "age": int(row["Age"]),
+                "gender": row["Gender"],
+                "blood_type": row["Blood Type"]
+            },
+            "medical": {
+                "condition": row["Medical Condition"],
+                "medication": row["Medication"],
+                "test_results": row["Test Results"]
+            },
+            "hospitalization": {
+                "admission_date": row["Date of Admission"],
+                "discharge_date": row["Discharge Date"],
+                "admission_type": row["Admission Type"],
+                "doctor": row["Doctor"],
+                "hospital": row["Hospital"],
+                "room_number": row["Room Number"]
+            },
+            "billing": {
+                "insurance_provider": row["Insurance Provider"],
+                "amount": float(row["Billing Amount"])
+            },
+            "metadata": {
+                "source": "kaggle_healthcare_dataset",
+                "ingested_at": datetime.utcnow()
+            }
+        }
+        documents.append(doc)
+
+    BATCH_SIZE = 1000
+
+    for batch in chunked(documents, BATCH_SIZE):
+        try:
+            collection.insert_many(batch, ordered=False)
+        except BulkWriteError:
+            pass  # doublons ignorés
+
+
+
+if __name__ == "__main__":
+    recup_fichier()
+    connectandmigrate()
