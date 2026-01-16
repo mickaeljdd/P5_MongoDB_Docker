@@ -113,3 +113,33 @@ Puis, dans le shell Mongo :
 use healthcare_db
 db.patients.find().limit(5).pretty()
 ```
+```mermaid
+classDiagram
+    class Patient {
+        name : string
+        age : number
+        gender : string
+        blood_type : string
+    }
+
+    class Medical {
+        condition : string
+        medication : string
+        test_results : string
+    }
+
+    class Hospitalization {
+        admission_date : date
+        discharge_date : date
+        admission_type : string
+        room_number : number
+        doctor : string
+        hospital : string
+    }
+
+    class Billing {
+        insurance_provider : string
+        amount : number
+    }
+
+```
