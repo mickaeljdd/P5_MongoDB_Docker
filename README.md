@@ -77,7 +77,19 @@ Il est utilisé comme **volume Docker** pour être accessible depuis le conteneu
 
 ## Comment exécuter le projet
 
-### 1. Lancer les services avec Docker
+### 1. Création des variables d'environnement
+
+Dans le fichier .envsample, il faudra remplir les valeurs mise à '...' au valeur que vous désirez dans lesquelles :
+  DB_USER=... (le nom utlisateur/utiliser comme admin)
+  DB_PASSWORD=... (le mot de passe de connection à la base de données pour l'admin)
+  DB_PORT=... (le port, attention doit être un nombre comme par exemple 27017)
+  DB_NAME=... (le nom de la base de données)
+  DB_READ_USER=... (le nom utilisateur pour le rôle lecteur)
+  DB_READ_PASSWORD=... (le mot de passe pour le rôle lecteur)
+  DB_READWRITE_USER=... (le nom utilisateur pour le rôle auteur)
+  DB_READWRITE_PASSWORD=... (le mot de passe pour le rôle auteur)
+
+### 2. Lancer les services avec Docker
 
 Dans un terminal, à la racine du projet :
 ```bash
@@ -141,5 +153,7 @@ classDiagram
         insurance_provider : string
         amount : number
     }
-
+    Patient --> Medical
+    Patient --> Hospitalization
+    Patient --> Billing
 ```
