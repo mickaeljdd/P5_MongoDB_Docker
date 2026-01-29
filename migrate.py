@@ -37,16 +37,16 @@ def recup_fichier():
 
 
 def connectandmigrate():
-    time.sleep(5)
+    time.sleep(5000)
 
     mongo_uri = os.getenv(
         "MONGO_URI",
         f"mongodb://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@localhost:{os.getenv('DB_PORT')}/"
     )
-
+    print(mongo_uri)
     client = MongoClient(mongo_uri)
     db = client["healthcare_db"]
-    collection = db["hospital_stays"]
+    collection = db["hospitalisations"]
 
     print("Connexion à MongoDB réussie")
 
@@ -92,10 +92,6 @@ def connectandmigrate():
                 "insurance_provider": row["Insurance Provider"],
                 "amount": float(row["Billing Amount"])
             },
-            "metadata": {
-                "source": "kaggle_healthcare_dataset",
-                "ingested_at": datetime.utcnow()
-            }
         }
         documents.append(doc)
 

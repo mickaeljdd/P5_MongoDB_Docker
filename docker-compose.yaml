@@ -10,6 +10,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
     volumes:
       - mongo_data:/data/db
+      - ./mongo_init.js:/docker-entrypoint-initdb.d/mongo_init.js:ro
+
     
   migrator:
     build: .
@@ -17,7 +19,7 @@ services:
     depends_on:
       - mongo
     environment:
-      - MONGO_URI=mongodb://${DB_USER}:${DB_PASSWORD}@mongo:${DB_PORT}/
+      - MONGO_URI=mongodb://${DB_USER}:${DB_PASSWORD}@mongo:${DB_PORT}/admin
     volumes:
       - ./data:/app/data
     env_file:

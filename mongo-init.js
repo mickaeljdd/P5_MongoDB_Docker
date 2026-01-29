@@ -1,19 +1,19 @@
-db=db.getSiblingDB(process.env.DB_NAME);
-//lecteur
+db = db.getSiblingDB("healthcare_db");
+
 db.createUser({
-  user: process.env.DB_READ_USER,
-  pwd: process.env.DB_READ_PASSWORD,
-  roles: [{ role: 'read', db: process.env.DB_NAME }],
+  user: "read_user",
+  pwd: "read_password",
+  roles: [{ role: "read", db: "healthcare_db" }],
 });
-//editeur
+
 db.createUser({
-  user: process.env.DB_READWRITE_USER,
-  pwd: process.env.DB_READWRITE_PASSWORD,
-  roles: [{ role: 'readWrite', db: process.env.DB_NAME }],
+  user: "readwrite_user",
+  pwd: "readwrite_password",
+  roles: [{ role: "readWrite", db: "healthcare_db" }],
 });
-//administrateur de la base de données
+
 db.createUser({
-  user: process.env.DB_USER,
-  pwd: process.env.DB_PASSWORD,
-  roles: [{ role: 'dbAdmin', db: process.env.DB_NAME }],
+  user: "admin_user",
+  pwd: "admin_password",
+  roles: [{ role: "dbAdmin", db: "healthcare_db" }],
 });
