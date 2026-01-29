@@ -80,14 +80,14 @@ Il est utilisé comme **volume Docker** pour être accessible depuis le conteneu
 ### 1. Création des variables d'environnement
 
 Dans le fichier .envsample, il faudra remplir les valeurs mise à '...' au valeur que vous désirez dans lesquelles :
-  DB_USER=... (le nom utlisateur/utiliser comme admin)
-  DB_PASSWORD=... (le mot de passe de connection à la base de données pour l'admin)
-  DB_PORT=... (le port, attention doit être un nombre comme par exemple 27017)
-  DB_NAME=... (le nom de la base de données)
-  DB_READ_USER=... (le nom utilisateur pour le rôle lecteur)
-  DB_READ_PASSWORD=... (le mot de passe pour le rôle lecteur)
-  DB_READWRITE_USER=... (le nom utilisateur pour le rôle auteur)
-  DB_READWRITE_PASSWORD=... (le mot de passe pour le rôle auteur)
+  * DB_USER=... (le nom utlisateur/utiliser comme admin)
+  * DB_PASSWORD=... (le mot de passe de connection à la base de données pour l'admin)
+  * DB_PORT=... (le port, attention doit être un nombre comme par exemple 27017)
+  * DB_NAME=... (le nom de la base de données)
+  * DB_READ_USER=... (le nom utilisateur pour le rôle lecteur)
+  * DB_READ_PASSWORD=... (le mot de passe pour le rôle lecteur)
+  * DB_READWRITE_USER=... (le nom utilisateur pour le rôle auteur)
+  * DB_READWRITE_PASSWORD=... (le mot de passe pour le rôle auteur)
 
 ### 2. Lancer les services avec Docker
 
@@ -97,19 +97,19 @@ docker compose up --build
 ```
 Cette commande va :
 
-Télécharger le csv
+  * Télécharger le csv
 
-Créer un dossier `data`
+  * Créer un dossier `data`
 
-Déplacer le fichier csv dedans
+  * Déplacer le fichier csv dedans
 
-Construire l’image du migrateur Python.
+  * Construire l’image du migrateur Python.
 
-Démarrer MongoDB dans un conteneur.
+  * Démarrer MongoDB dans un conteneur.
 
-Exécuter le script de migration dans le conteneur migrator.
+  * Exécuter le script de migration dans le conteneur migrator.
 
-Importer toutes les lignes du CSV dans la collection MongoDB.
+  * Importer toutes les lignes du CSV dans la collection MongoDB.
 
 3. Vérifier l’import
 
