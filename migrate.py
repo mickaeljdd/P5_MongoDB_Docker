@@ -37,15 +37,28 @@ def recup_fichier():
 
 
 def connectandmigrate():
-    time.sleep(5000)
-
     mongo_uri = os.getenv(
         "MONGO_URI",
         f"mongodb://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@localhost:{os.getenv('DB_PORT')}/"
     )
-    print(mongo_uri)
-    client = MongoClient(mongo_uri)
-    db = client["healthcare_db"]
+    db_name = os.getenv("DB_NAME", "healthcare_db")
+
+    def wait_for_mongo(uri, retries=30, delay=2):
+        last_error = None
+        for attempt in range(1, retries + 1):
+            try:
+                test_client = MongoClient(uri, serverSelectionTimeoutMS=3000)
+                test_client.admin.command("ping")
+                return test_client
+            except errors.ServerSelectionTimeoutError as exc:
+                last_error = exc
+                print(f"MongoDB indisponible (tentative {attempt}/{retries}), nouvelle tentative dans {delay}s...")
+                time.sleep(delay)
+        raise RuntimeError("Impossible de se connecter à MongoDB") from last_error
+
+    print(f"Connexion à MongoDB via {mongo_uri}")
+    client = wait_for_mongo(mongo_uri)
+    db = client[db_name]
     collection = db["hospitalisations"]
 
     print("Connexion à MongoDB réussie")

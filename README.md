@@ -22,7 +22,7 @@ P5_MongoDB_Docker/
 ├── requirements.txt # Dépendances Python
 ├── README.md # Ce fichier de documentation
 └── data/ # Dossier local pour stocker le CSV
-└── healthcare-dataset.csv
+└── healthcare_dataset.csv
 ```
 ## Description des composants
 
@@ -79,7 +79,7 @@ Il est utilisé comme **volume Docker** pour être accessible depuis le conteneu
 
 ### 1. Création des variables d'environnement
 
-Dans le fichier .envsample, il faudra remplir les valeurs mise à '...' au valeur que vous désirez dans lesquelles :
+Copiez `.env_sample` vers `.env`, puis renseignez les valeurs (remplacez les `...`) :
   * DB_USER=... (le nom utlisateur/utiliser comme admin)
   * DB_PASSWORD=... (le mot de passe de connection à la base de données pour l'admin)
   * DB_PORT=... (le port, attention doit être un nombre comme par exemple 27017)
@@ -116,7 +116,7 @@ Cette commande va :
 Vous pouvez vérifier que les données ont bien été importées dans un autre terminal :
 
 ```bash
-docker exec -it mongodb mongosh -u admin -p password
+docker exec -it mongodb mongosh -u admin -p admin_password
 ```
 
 Puis, dans le shell Mongo :

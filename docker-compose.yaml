@@ -4,22 +4,35 @@ services:
     container_name: mongodb
     restart: always
     ports:
-      - "${DB_PORT}:${DB_PORT}"
+      - "${DB_PORT:-27017}:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+      MONGO_INITDB_DATABASE: ${DB_NAME:-healthcare_db}
+      DB_READ_USER: ${DB_READ_USER}
+      DB_READ_PASSWORD: ${DB_READ_PASSWORD}
+      DB_READWRITE_USER: ${DB_READWRITE_USER}
+      DB_READWRITE_PASSWORD: ${DB_READWRITE_PASSWORD}
     volumes:
       - mongo_data:/data/db
-      - ./mongo_init.js:/docker-entrypoint-initdb.d/mongo_init.js:ro
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --username \"$$MONGO_INITDB_ROOT_USERNAME\" --password \"$$MONGO_INITDB_ROOT_PASSWORD\" --authenticationDatabase admin --eval \"db.adminCommand('ping')\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
     
   migrator:
     build: .
     container_name: mongo_migrator
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     environment:
-      - MONGO_URI=mongodb://${DB_USER}:${DB_PASSWORD}@mongo:${DB_PORT}/admin
+      - MONGO_URI=mongodb://${DB_USER}:${DB_PASSWORD}@mongo:27017/admin
+      - DB_NAME=${DB_NAME:-healthcare_db}
     volumes:
       - ./data:/app/data
     env_file:
