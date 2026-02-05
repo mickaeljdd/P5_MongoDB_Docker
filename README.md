@@ -191,6 +191,10 @@ Les documents sont stockés dans la collection `hospitalisations` de la base `he
 L’index unique évite les doublons lors des relances de migration et garantit l’idempotence (la réutilisation du script produit le même résultat).
 
 ## Étapes d'authentification
+### Méthode d’authentification :
+- Accès via `username/password` dans l’URI MongoDB (ex: `mongodb://user:pass@host:27017/admin`).
+- Au démarrage, l’image officielle MongoDB exécute `mongo-init.js` (répertoire `/docker-entrypoint-initdb.d`) pour créer les comptes. 
+
 ### Création des rôles
 Lors du lancement du docker build, le logiciel va créer les utilisateurs présentés dans la section `Présentation des rôles` via le script `mongo-init.js`.
 ### Hachage du mot de passe
