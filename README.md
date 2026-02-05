@@ -153,7 +153,48 @@ classDiagram
         insurance_provider : string
         amount : number
     }
-    Patient --> Medical
+
     Patient --> Hospitalization
-    Patient --> Billing
 ```
+## Présentation des rôles
+### Admin
+Donne les pouvoirs administrateur sur la base de données, celui-ci permet d'obtenir l'entièreté des droits sur la base de données (lecture,écriture,création,création d'utilisateur/rôles).
+### Lecteur
+Donne à l'utilisateur les droits en lecture de la base de données. Il permet donc de consulter la base sans pouvoir la modifier.
+### Ecriture et lecteur
+Donne à l'utilisateur les droits en écriture et en lecteur de la base de données. Il permet donc de consulter la base de données et la rédaction/modification de nouvelles données.
+### Justification des rôles
+Ces rôles sont nécessaire car le client ne souhaite pas que toutes les personnes se connectant à la base de données ai l'ensemble des droits.
+Il faut donc établir plusieurs utilisateurs de plusieurs niveau de sécurité : 
+- Admin : Utilisateur d'administration et d'initialisation
+- Lecture : Lecture, servant à la consultation des données (sans modifications)
+- Lecture/Écriture : Ayant les droits de lecture mais également d'écriture pour la modification et la maintenance
+
+## Étapes de migration
+### Extraction des données (Extract)
+1. Création du dossier data (si nécessaire)
+2. Téléchargement du dataset `healthcare-dataset.csv` via Kagglehub si celui-ci n'est pas déjà présent
+3. Copie du fichier `healthcare-dataset.csv` dans le dossier `data`
+### Transformation des données (Transform)
+1. Lecture du csv via Pandas
+2. Correspondance des colonnes vers un document noSQL avec les champs (Patients,Medical,Hospitalization,Billing)
+3. Normalisation des types
+4. Constitution des lots de 1000 documents pour l'insertion
+### Chargement des données (Load)
+1. Connexion à MongoDB via l'URI MongoDB
+2. Création d'un index unique (Patients<->Hospitalization)
+3. Insertion des documents dans la collection Hospitalisation (les doublons sont ignorés)
+
+
+## Stockage et indexation
+Les documents sont stockés dans la collection `hospitalisations` de la base `healthcare_db` (par défaut).
+L’index unique évite les doublons lors des relances de migration et garantit l’idempotence (la réutilisation du script produit le même résultat).
+
+## Étapes d'authentification
+### Création des rôles
+Lors du lancement du docker build, le logiciel va créer les utilisateurs présentés dans la section `Présentation des rôles` via le script `mongo-init.js`.
+### Hachage du mot de passe
+Les mots de passe ne sont jamais stockés dans le code, mongoDB va le hashé via le SCRAM.
+
+## Réseau Docker
+Le `docker-compose.yaml` déclare un réseau dédié afin de rendre explicite la communication entre services s'appelant `mongo_network`.

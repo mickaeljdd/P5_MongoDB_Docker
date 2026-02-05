@@ -22,7 +22,8 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
-
+    networks:
+      - mongo_network
     
   migrator:
     build: .
@@ -37,5 +38,10 @@ services:
       - ./data:/app/data
     env_file:
       - ./.env
+    networks:
+      - mongo_network
 volumes:
   mongo_data:
+networks:
+  mongo_network:
+  
